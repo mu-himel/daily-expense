@@ -35,4 +35,11 @@ public class DailyExpense extends BaseEntity{
         this.totalCost = totalCost.add(itemCost.getUnitPrice());
         return this;
     }
+
+    public void setItemCostList(List<ItemCost> itemCostList) {
+        this.itemCostList = itemCostList;
+        this.totalCost = this.itemCostList.stream().map(
+                itemCost ->itemCost.getUnitPrice().multiply(new BigDecimal(itemCost.getQty()))
+        ).reduce(new BigDecimal(0),BigDecimal::add);
+    }
 }

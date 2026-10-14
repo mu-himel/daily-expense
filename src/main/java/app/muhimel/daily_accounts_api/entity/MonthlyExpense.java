@@ -4,16 +4,14 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 
 @Entity
 @Data
-public class MonthlyExpense {
+public class MonthlyExpense extends BaseEntity{
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     private Integer numberOfMonth;
     private Integer year;
@@ -22,4 +20,10 @@ public class MonthlyExpense {
     private List<DailyExpense> dailyExpenseList;
 
     private BigDecimal runningCost;
+
+    public void setDailyExpenseList(List<DailyExpense> dailyExpenseList) {
+        this.dailyExpenseList = dailyExpenseList;
+        this.runningCost = this.dailyExpenseList.stream().reduce(new BigDecimal(0),
+                (sum,dailyExpense) -> sum.add(dailyExpense.getTotalCost().setScale(1,RoundingMode.UP)),BigDecimal::add);
+    }
 }
