@@ -23,6 +23,12 @@ public class MonthlyExpense extends BaseEntity{
 
     private BigDecimal runningCost;
 
+    public MonthlyExpense(Integer numberOfMonth, Integer year){
+        this.numberOfMonth = numberOfMonth;
+        this.year = year;
+    }
+
+
     public void setDailyExpenseList(List<DailyExpense> dailyExpenseList) {
         this.dailyExpenseList = dailyExpenseList;
         this.runningCost = this.dailyExpenseList.stream().reduce(new BigDecimal(0),
