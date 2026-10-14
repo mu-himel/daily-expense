@@ -11,7 +11,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 public class DailyExpenseTest {
 
     @Test
-    void test_createDailyExpenseObject(){
+    void test_CreateDailyExpenseObject(){
 
         ItemCost itemCost1 = new ItemCost(new Product(1L,"Fish","Kg"),1d,new BigDecimal(220));
         ItemCost itemCost2 = new ItemCost(new Product(2L,"Potato","Kg"),1d,new BigDecimal(30));

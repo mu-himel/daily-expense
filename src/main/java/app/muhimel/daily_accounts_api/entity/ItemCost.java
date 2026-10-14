@@ -18,7 +18,7 @@ public class ItemCost extends BaseEntity{
     private BigDecimal unitPrice;
     private BigDecimal totalPrice;
 
-    ItemCost(Product item, Double qty, BigDecimal unitPrice){
+    public ItemCost(Product item, Double qty, BigDecimal unitPrice){
         this.item = item;
         this.qty = qty;
         this.unitPrice = unitPrice;

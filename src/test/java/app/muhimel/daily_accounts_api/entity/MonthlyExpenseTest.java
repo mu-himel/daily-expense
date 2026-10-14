@@ -42,7 +42,7 @@ public class MonthlyExpenseTest {
     }
 
     @Test
-    void test_runningCost(){
+    void test_CalculateRunningCost(){
         assertThat(monthlyExpense).extracting(MonthlyExpense::getRunningCost).isEqualTo(new BigDecimal("755.0"));
 
     }

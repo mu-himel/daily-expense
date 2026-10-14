@@ -15,7 +15,7 @@ public class Product extends BaseEntity{
     private String name;
     private String unit;
 
-    Product(Long id, String name, String unit){
+    public Product(Long id, String name, String unit){
         this.setId(id);
         this.name = name;
         this.unit = unit;
