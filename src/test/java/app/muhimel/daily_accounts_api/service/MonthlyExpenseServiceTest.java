@@ -53,6 +53,18 @@ public class MonthlyExpenseServiceTest {
     }
 
     @Test
+    void test_ThrowExceptionIfYearIsNull(){
+        assertThatThrownBy(()->monthlyExpenseService.createMonthlyExpense(new MonthlyExpenseRequest(9,null)))
+                .isInstanceOf(RuntimeException.class).extracting("message").isEqualTo("Year is required");
+    }
+
+    @Test
+    void test_ThrowExceptionIfMonthIsOutOfBoundaryValues(){
+        assertThatThrownBy(()->monthlyExpenseService.createMonthlyExpense(new MonthlyExpenseRequest(0,2026)))
+                .isInstanceOf(RuntimeException.class).extracting("message").isEqualTo("Month should be within 1-12");
+    }
+
+    @Test
     void test_ThrowExceptionIfMonthlyExpenseAlreadyExist(){
         Integer month = 9;
         Integer year = 2026;

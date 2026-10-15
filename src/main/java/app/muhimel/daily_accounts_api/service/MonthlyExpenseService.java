@@ -20,6 +20,12 @@ public class MonthlyExpenseService {
         if(Objects.isNull(month)){
             throw new RuntimeException("Month is required");
         }
+        if(Objects.isNull(year)){
+            throw new RuntimeException("Year is required");
+        }
+        if(month<=0 || month>12){
+            throw new RuntimeException("Month should be within 1-12");
+        }
         return Optional.ofNullable(monthlyExpenseRepository.findByNumberOfMonthAndYear(month,year));
     }
 
