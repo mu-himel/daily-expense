@@ -66,9 +66,4 @@ public class DailyExpenseServiceTest {
         verify(dailyExpenseRepository).save(any(DailyExpense.class));
 
     }
-
-    // add new item cost entry to an existing daily expense
-    void test_AddNewItemCostToAnExistingDailyExpense(){
-
-    }
 }

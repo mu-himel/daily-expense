@@ -20,4 +20,8 @@ public class Product extends BaseEntity{
         this.name = name;
         this.unit = unit;
     }
+
+    public Product(Long id){
+        this.setId(id);
+    }
 }
