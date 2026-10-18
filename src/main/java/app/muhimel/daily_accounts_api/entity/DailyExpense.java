@@ -25,6 +25,12 @@ public class DailyExpense extends BaseEntity{
     @ManyToOne(fetch = FetchType.LAZY)
     private MonthlyExpense monthlyExpense;
 
+    DailyExpense(Long id, LocalDate d, BigDecimal totalCost){
+        this.setId(id);
+        this.currentDate = d;
+        this.totalCost = totalCost;
+    }
+
     DailyExpense(LocalDate d, BigDecimal totalCost){
         this.currentDate = d;
         this.totalCost = totalCost;

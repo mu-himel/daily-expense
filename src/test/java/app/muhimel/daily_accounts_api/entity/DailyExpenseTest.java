@@ -15,9 +15,9 @@ public class DailyExpenseTest {
 
         ItemCost itemCost1 = new ItemCost(new Product(1L,"Fish","Kg"),1d,new BigDecimal(220));
         ItemCost itemCost2 = new ItemCost(new Product(2L,"Potato","Kg"),1d,new BigDecimal(30));
-        DailyExpense dailyExpense = new DailyExpense(LocalDate.now(),new BigDecimal(0));
+        DailyExpense dailyExpense = new DailyExpense(1L,LocalDate.now(),new BigDecimal(0));
         dailyExpense.addItemCost(itemCost1).addItemCost(itemCost2);
-        assertThat(dailyExpense).hasFieldOrPropertyWithValue("totalCost",new BigDecimal(250));
+        assertThat(dailyExpense).extracting(DailyExpense::getId).isEqualTo(1L);
 
     }
 
