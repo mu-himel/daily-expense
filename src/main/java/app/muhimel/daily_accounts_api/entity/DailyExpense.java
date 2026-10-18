@@ -17,7 +17,7 @@ public class DailyExpense extends BaseEntity{
 
     private final LocalDate currentDate;
 
-    @OneToMany(mappedBy = "dailyExpense")
+    @OneToMany(mappedBy = "dailyExpense",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemCost> itemCostList = new ArrayList<>();
 
     private BigDecimal totalCost;
@@ -25,13 +25,13 @@ public class DailyExpense extends BaseEntity{
     @ManyToOne(fetch = FetchType.LAZY)
     private MonthlyExpense monthlyExpense;
 
-    DailyExpense(Long id, LocalDate d, BigDecimal totalCost){
+    public DailyExpense(Long id, LocalDate d, BigDecimal totalCost){
         this.setId(id);
         this.currentDate = d;
         this.totalCost = totalCost;
     }
 
-    DailyExpense(LocalDate d, BigDecimal totalCost){
+    public DailyExpense(LocalDate d, BigDecimal totalCost){
         this.currentDate = d;
         this.totalCost = totalCost;
     }

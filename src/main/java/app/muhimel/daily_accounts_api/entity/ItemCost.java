@@ -25,6 +25,13 @@ public class ItemCost extends BaseEntity{
         this.totalPrice = this.unitPrice.multiply(new BigDecimal(this.qty));
     }
 
+    public ItemCost(Product item, Double qty, BigDecimal unitPrice, DailyExpense de){
+        this.item = item;
+        this.qty = qty;
+        this.unitPrice = unitPrice;
+        this.dailyExpense = de;
+    }
+
     @ManyToOne(fetch = FetchType.LAZY)
     private DailyExpense dailyExpense;
 }

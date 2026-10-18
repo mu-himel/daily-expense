@@ -28,6 +28,12 @@ public class MonthlyExpense extends BaseEntity{
         this.year = year;
     }
 
+    public MonthlyExpense(Long id, Integer numberOfMonth, Integer year){
+        this.setId(id);
+        this.numberOfMonth = numberOfMonth;
+        this.year = year;
+    }
+
 
     public void setDailyExpenseList(List<DailyExpense> dailyExpenseList) {
         this.dailyExpenseList = dailyExpenseList;
