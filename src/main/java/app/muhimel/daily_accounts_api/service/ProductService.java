@@ -1,10 +1,13 @@
 package app.muhimel.daily_accounts_api.service;
 
+import app.muhimel.daily_accounts_api.dto.ProductPage;
 import app.muhimel.daily_accounts_api.entity.Product;
 import app.muhimel.daily_accounts_api.repository.ProductRepository;
 import app.muhimel.daily_accounts_api.request.ProductRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -24,5 +27,15 @@ public class ProductService {
         Product product = new Product(pr.getName(), pr.getUnit());
         return productRepository.save(product);
 
+    }
+
+    public ProductPage getProductPage(String name, Integer page, Integer size){
+        Page<Product> pages = null;
+        if(name.isEmpty()){
+            pages = productRepository.findAll(PageRequest.of(page,size));
+            return new ProductPage(pages);
+        }
+        pages = productRepository.findAllByName(name,PageRequest.of(page,size));
+        return new ProductPage(pages);
     }
 }
