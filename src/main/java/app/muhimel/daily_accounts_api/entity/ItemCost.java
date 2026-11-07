@@ -3,16 +3,19 @@ package app.muhimel.daily_accounts_api.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
+@NoArgsConstructor
 public class ItemCost extends BaseEntity{
 
 
 
+    @ManyToOne(fetch = FetchType.LAZY)
     private Product item;
     private Double qty;
     private BigDecimal unitPrice;

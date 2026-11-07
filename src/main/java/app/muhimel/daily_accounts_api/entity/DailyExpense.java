@@ -2,20 +2,24 @@ package app.muhimel.daily_accounts_api.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
-@RequiredArgsConstructor
 @Data
+@NoArgsConstructor
 public class DailyExpense extends BaseEntity{
 
 
-    private final LocalDate currentDate;
+
+    @Column(name = "expense_date")
+    private LocalDate currentDate;
 
     @OneToMany(mappedBy = "dailyExpense",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemCost> itemCostList = new ArrayList<>();
@@ -24,6 +28,10 @@ public class DailyExpense extends BaseEntity{
 
     @ManyToOne(fetch = FetchType.LAZY)
     private MonthlyExpense monthlyExpense;
+
+    public DailyExpense(LocalDate currentDate){
+        this.currentDate = currentDate;
+    }
 
     public DailyExpense(Long id, LocalDate d, BigDecimal totalCost){
         this.setId(id);
