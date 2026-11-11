@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -32,10 +33,10 @@ public class ProductService {
     public ProductPage getProductPage(String name, Integer page, Integer size){
         Page<Product> pages = null;
         if(name.isEmpty()){
-            pages = productRepository.findAll(PageRequest.of(page,size));
+            pages = productRepository.findAll(PageRequest.of(page,size, Sort.by(Sort.Direction.DESC,"id")));
             return new ProductPage(pages);
         }
-        pages = productRepository.findAllByName(name,PageRequest.of(page,size));
+        pages = productRepository.findAllByName(name,PageRequest.of(page,size, Sort.by(Sort.Direction.DESC, "id")));
         return new ProductPage(pages);
     }
 }
