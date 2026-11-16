@@ -19,6 +19,7 @@ public class MonthlyExpense extends BaseEntity{
 
     private Integer numberOfMonth;
     private Integer year;
+    private BigDecimal budgetAmount;
 
     @OneToMany(mappedBy = "monthlyExpense")
     private List<DailyExpense> dailyExpenseList;
@@ -28,6 +29,12 @@ public class MonthlyExpense extends BaseEntity{
     public MonthlyExpense(Integer numberOfMonth, Integer year){
         this.numberOfMonth = numberOfMonth;
         this.year = year;
+    }
+
+    public MonthlyExpense(Integer numberOfMonth, Integer year, BigDecimal budgetAmount){
+        this.numberOfMonth = numberOfMonth;
+        this.year = year;
+        this.budgetAmount = budgetAmount;
     }
 
     public MonthlyExpense(Long id, Integer numberOfMonth, Integer year){

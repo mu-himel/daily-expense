@@ -1,5 +1,6 @@
 package app.muhimel.daily_accounts_api.service;
 
+import app.muhimel.daily_accounts_api.dto.MonthlyExpenseResponse;
 import app.muhimel.daily_accounts_api.entity.DailyExpense;
 import app.muhimel.daily_accounts_api.entity.ItemCost;
 import app.muhimel.daily_accounts_api.entity.MonthlyExpense;
@@ -12,6 +13,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.assertj.core.api.Assertions;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -48,19 +50,26 @@ public class MonthlyExpenseServiceTest {
 
     @Test
     void test_ThrowExceptionIfMonthIsNull(){
-        assertThatThrownBy(()->monthlyExpenseService.createMonthlyExpense(new MonthlyExpenseRequest(null,2026)))
-                .isInstanceOf(RuntimeException.class);
+        assertThatThrownBy(()->monthlyExpenseService.createMonthlyExpense(new MonthlyExpenseRequest(null,2026,new BigDecimal("1000"))))
+                .isInstanceOf(RuntimeException.class).extracting("message").isEqualTo("Month is required");
     }
 
     @Test
     void test_ThrowExceptionIfYearIsNull(){
-        assertThatThrownBy(()->monthlyExpenseService.createMonthlyExpense(new MonthlyExpenseRequest(9,null)))
+        assertThatThrownBy(()->monthlyExpenseService.createMonthlyExpense(new MonthlyExpenseRequest(9,null,new BigDecimal("1000"))))
                 .isInstanceOf(RuntimeException.class).extracting("message").isEqualTo("Year is required");
     }
 
     @Test
+    void test_ThrowExceptionIfBudgetAmountIsNull(){
+        assertThatThrownBy(()->monthlyExpenseService.createMonthlyExpense(new MonthlyExpenseRequest(9,2026,null)))
+                .isInstanceOf(RuntimeException.class).extracting("message").isEqualTo("Budget amount is required");
+        verifyNoInteractions(monthlyExpenseRepository);
+    }
+
+    @Test
     void test_ThrowExceptionIfMonthIsOutOfBoundaryValues(){
-        assertThatThrownBy(()->monthlyExpenseService.createMonthlyExpense(new MonthlyExpenseRequest(0,2026)))
+        assertThatThrownBy(()->monthlyExpenseService.createMonthlyExpense(new MonthlyExpenseRequest(0,2026,new BigDecimal("1000"))))
                 .isInstanceOf(RuntimeException.class).extracting("message").isEqualTo("Month should be within 1-12");
     }
 
@@ -70,7 +79,7 @@ public class MonthlyExpenseServiceTest {
         Integer year = 2026;
         MonthlyExpense monthlyExpense = existMonthlyExpense(month,year);
         when(monthlyExpenseRepository.findByNumberOfMonthAndYear(month,year)).thenReturn(monthlyExpense);
-        assertThatThrownBy(()->monthlyExpenseService.createMonthlyExpense(new MonthlyExpenseRequest(month,year)))
+        assertThatThrownBy(()->monthlyExpenseService.createMonthlyExpense(new MonthlyExpenseRequest(month,year,new BigDecimal("1000"))))
                 .isInstanceOf(RuntimeException.class);
         verify(monthlyExpenseRepository, never()).save(any());
     }
@@ -82,11 +91,32 @@ public class MonthlyExpenseServiceTest {
 
             when(monthlyExpenseRepository.findByNumberOfMonthAndYear(month,year)).thenReturn(null);
             when(monthlyExpenseRepository.save(any(MonthlyExpense.class))).thenAnswer((inv)->inv.getArgument(0));
-            MonthlyExpenseRequest request = new MonthlyExpenseRequest(month, year);
+            MonthlyExpenseRequest request = new MonthlyExpenseRequest(month, year, new BigDecimal("5000.50"));
             monthlyExpenseService.createMonthlyExpense(request);
             ArgumentCaptor<MonthlyExpense> captor = ArgumentCaptor.forClass(MonthlyExpense.class);
             verify(monthlyExpenseRepository).save(captor.capture());
             assertThat(captor.getValue().getNumberOfMonth()).isEqualTo(month);
             assertThat(captor.getValue().getYear()).isEqualTo(year);
+            assertThat(captor.getValue().getBudgetAmount()).isEqualTo(new BigDecimal("5000.50"));
+    }
+
+    @Test
+    void test_GetAllMonthlyExpensesByYear(){
+        int requestedYear = 2026;
+        MonthlyExpense january = new MonthlyExpense(1, requestedYear, new BigDecimal("15000.00"));
+        MonthlyExpense february = new MonthlyExpense(2, requestedYear, new BigDecimal("12000.00"));
+        when(monthlyExpenseRepository.findByYear(requestedYear)).thenReturn(List.of(january, february));
+
+        List<MonthlyExpenseResponse> result = monthlyExpenseService.getAllMonthlyExpensesByYear(requestedYear);
+
+        Assertions.assertThat(result).hasSize(2);
+        Assertions.assertThat(result.get(0).getNumberOfMonth()).isEqualTo(1);
+        Assertions.assertThat(result.get(0).getYear()).isEqualTo(requestedYear);
+        Assertions.assertThat(result.get(0).getBudgetAmount()).isEqualByComparingTo("15000.00");
+        Assertions.assertThat(result.get(1).getNumberOfMonth()).isEqualTo(2);
+        Assertions.assertThat(result.get(1).getYear()).isEqualTo(requestedYear);
+        Assertions.assertThat(result.get(1).getBudgetAmount()).isEqualByComparingTo("12000.00");
+        verify(monthlyExpenseRepository).findByYear(requestedYear);
+        verifyNoMoreInteractions(monthlyExpenseRepository);
     }
 }
