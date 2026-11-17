@@ -11,12 +11,12 @@ import org.testcontainers.utility.DockerImageName;
 @TestConfiguration(proxyBeanMethods = false)
 class TestcontainersConfiguration {
 
-	@Bean
-	@ServiceConnection
-	@Ssl
-	ElasticsearchContainer elasticsearchContainer() {
-		return new ElasticsearchContainer(DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch:9.3.3"));
-	}
+//	@Bean
+//	@ServiceConnection
+//	@Ssl
+//	ElasticsearchContainer elasticsearchContainer() {
+//		return new ElasticsearchContainer(DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch:9.3.3"));
+//	}
 
 	@Bean
 	@ServiceConnection
