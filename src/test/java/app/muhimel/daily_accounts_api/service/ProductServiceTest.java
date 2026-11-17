@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +35,7 @@ public class ProductServiceTest {
 
     @Test
     void test_DoNotCreateNewProductIfExist(){
-        ProductRequest pr =  new ProductRequest("Egg", "pcs");
+        ProductRequest pr =  new ProductRequest(null, "Egg", "pcs");
         Product p = new Product(1L, "Egg","pcs");
         when(productRepository.findByName(pr.getName())).thenReturn(Optional.ofNullable(p));
         assertThatThrownBy(()->productService.createNewProduct(pr)).isInstanceOf(RuntimeException.class);
@@ -43,7 +44,7 @@ public class ProductServiceTest {
 
     @Test
     void test_CreateNewProductSuccessfully(){
-        ProductRequest pr =  new ProductRequest("Egg", "pcs");
+        ProductRequest pr =  new ProductRequest(null, "Egg", "pcs");
         Product p = new Product(1L, "Egg","pcs");
         when(productRepository.findByName(pr.getName())).thenReturn(Optional.ofNullable(null));
         when(productRepository.save(any())).thenAnswer((inv)->inv.getArgument(0));
@@ -54,8 +55,57 @@ public class ProductServiceTest {
     }
 
     @Test
+    void test_UpdateProductSuccessfully(){
+        ProductRequest pr = new ProductRequest(1, "Rice", "kg");
+        Product existing = new Product(1L, "Egg", "pcs");
+        when(productRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(productRepository.findByName("Rice")).thenReturn(Optional.empty());
+        when(productRepository.save(any())).thenAnswer((inv)->inv.getArgument(0));
+
+        Product result = productService.updateProduct(pr);
+
+        assertThat(result.getName()).isEqualTo("Rice");
+        assertThat(result.getUnit()).isEqualTo("kg");
+        verify(productRepository).save(existing);
+    }
+
+    @Test
+    void test_UpdateProductKeepsNameWhenUnchanged(){
+        ProductRequest pr = new ProductRequest(1, "Egg", "box");
+        Product existing = new Product(1L, "Egg", "pcs");
+        when(productRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(productRepository.save(any())).thenAnswer((inv)->inv.getArgument(0));
+
+        productService.updateProduct(pr);
+
+        verify(productRepository, never()).findByName(anyString());
+        verify(productRepository).save(existing);
+    }
+
+    @Test
+    void test_UpdateProductThrowsWhenProductDoesNotExist(){
+        ProductRequest pr = new ProductRequest(99, "Rice", "kg");
+        when(productRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(()->productService.updateProduct(pr)).isInstanceOf(RuntimeException.class);
+        verify(productRepository, never()).save(any());
+    }
+
+    @Test
+    void test_UpdateProductThrowsWhenNewNameAlreadyExists(){
+        ProductRequest pr = new ProductRequest(1, "Rice", "kg");
+        Product existing = new Product(1L, "Egg", "pcs");
+        Product duplicate = new Product(2L, "Rice", "kg");
+        when(productRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(productRepository.findByName("Rice")).thenReturn(Optional.of(duplicate));
+
+        assertThatThrownBy(()->productService.updateProduct(pr)).isInstanceOf(RuntimeException.class);
+        verify(productRepository, never()).save(any());
+    }
+
+    @Test
     void test_GetProductPageWithoutNameFilter() {
-        Pageable pageable = PageRequest.of(0, 5);
+        Pageable pageable = PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "id"));
         List<Product> products = List.of(
                 new Product(1L, "Egg", "pcs"),
                 new Product(2L, "Rice", "kg")
@@ -76,7 +126,7 @@ public class ProductServiceTest {
 
     @Test
     void test_GetProductPageWithNameFilter() {
-        Pageable pageable = PageRequest.of(1, 2);
+        Pageable pageable = PageRequest.of(1, 2, Sort.by(Sort.Direction.DESC, "id"));
         List<Product> products = List.of(new Product(3L, "Egg", "pcs"));
         Page<Product> productPage = new PageImpl<>(products, pageable, 7);
         when(productRepository.findAllByName("Egg", pageable)).thenReturn(productPage);

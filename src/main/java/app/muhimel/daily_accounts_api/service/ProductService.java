@@ -30,6 +30,22 @@ public class ProductService {
 
     }
 
+    public Product updateProduct(ProductRequest pr){
+        Product product = productRepository.findById(pr.getId().longValue())
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        if(!product.getName().equals(pr.getName())){
+            Optional<Product> productOp = productRepository.findByName(pr.getName());
+            if(productOp.isPresent()){
+                throw new RuntimeException("Sorry! Product already exist");
+            }
+        }
+
+        product.setName(pr.getName());
+        product.setUnit(pr.getUnit());
+        return productRepository.save(product);
+    }
+
     public ProductPage getProductPage(String name, Integer page, Integer size){
         Page<Product> pages = null;
         if(name.isEmpty()){

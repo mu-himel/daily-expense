@@ -23,6 +23,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -94,6 +95,60 @@ class ProductControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {"name":"Egg","unit":""}
+                        """)
+        ).andExpect(status().isBadRequest());
+
+        verifyNoInteractions(productService);
+    }
+
+    @Test
+    void test_AddNewProductReturnsBadRequestWhenIdIsProvided() throws Exception {
+        mockMvc.perform(post("/api/v1/products")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {"id":1,"name":"Egg","unit":"Pcs"}
+                        """)
+        ).andExpect(status().isBadRequest());
+
+        verifyNoInteractions(productService);
+    }
+
+    @Test
+    void test_UpdateProductReturnsOkAndDelegatesToService() throws Exception {
+        mockMvc.perform(put("/api/v1/products")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {"id":1,"name":"Egg","unit":"Pcs"}
+                        """)
+        ).andExpect(status().isOk());
+
+        ArgumentCaptor<ProductRequest> captor = ArgumentCaptor.forClass(ProductRequest.class);
+        verify(productService).updateProduct(captor.capture());
+
+        assertThat(captor.getValue().getId()).isEqualTo(1);
+        assertThat(captor.getValue().getName()).isEqualTo("Egg");
+        assertThat(captor.getValue().getUnit()).isEqualTo("Pcs");
+        verifyNoMoreInteractions(productService);
+    }
+
+    @Test
+    void test_UpdateProductReturnsBadRequestWhenIdIsMissing() throws Exception {
+        mockMvc.perform(put("/api/v1/products")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {"name":"Egg","unit":"Pcs"}
+                        """)
+        ).andExpect(status().isBadRequest());
+
+        verifyNoInteractions(productService);
+    }
+
+    @Test
+    void test_UpdateProductReturnsBadRequestWhenNameIsMissing() throws Exception {
+        mockMvc.perform(put("/api/v1/products")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {"id":1,"unit":"Pcs"}
                         """)
         ).andExpect(status().isBadRequest());
 

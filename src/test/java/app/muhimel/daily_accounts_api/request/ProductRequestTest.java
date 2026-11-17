@@ -73,9 +73,54 @@ class ProductRequestTest {
         assertViolation(request, "unit", "unit is Required");
     }
 
+    @Test
+    void test_CreateGroupAcceptsRequestWithoutId() {
+        ProductRequest request = new ProductRequest(null, "Fish", "pcs");
+
+        assertThat(validator.validate(request, ProductRequest.Create.class)).isEmpty();
+    }
+
+    @Test
+    void test_CreateGroupRejectsId() {
+        ProductRequest request = new ProductRequest(1, "Fish", "pcs");
+
+        assertViolation(request, ProductRequest.Create.class, "id",
+                "Id must not be provided when creating a product");
+    }
+
+    @Test
+    void test_UpdateGroupAcceptsRequestWithId() {
+        ProductRequest request = new ProductRequest(1, "Fish", "pcs");
+
+        assertThat(validator.validate(request, ProductRequest.Update.class)).isEmpty();
+    }
+
+    @Test
+    void test_UpdateGroupRequiresId() {
+        ProductRequest request = new ProductRequest(null, "Fish", "pcs");
+
+        assertViolation(request, ProductRequest.Update.class, "id", "Id is Required");
+    }
+
+    @Test
+    void test_CreateAndUpdateGroupsStillValidateNameAndUnit() {
+        ProductRequest request = new ProductRequest(null, "", null);
+
+        assertViolation(request, ProductRequest.Create.class, "name", "Name is Required");
+        assertViolation(request, ProductRequest.Create.class, "unit", "unit is Required");
+    }
+
     private void assertViolation(ProductRequest request, String field, String message) {
         Set<ConstraintViolation<ProductRequest>> violations = validator.validate(request);
+        assertViolation(violations, field, message);
+    }
 
+    private void assertViolation(ProductRequest request, Class<?> group, String field, String message) {
+        Set<ConstraintViolation<ProductRequest>> violations = validator.validate(request, group);
+        assertViolation(violations, field, message);
+    }
+
+    private void assertViolation(Set<ConstraintViolation<ProductRequest>> violations, String field, String message) {
         assertThat(violations)
                 .anySatisfy(violation -> {
                     assertThat(violation.getPropertyPath().toString()).isEqualTo(field);
